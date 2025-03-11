@@ -55,6 +55,9 @@ copy_toolchain_lib_root = \
 # corresponding architecture variants), and we don't want to import
 # them.
 #
+# Furthermore, when BR2_ROOTFS_MERGED_USR is enabled, the 'lib*' directories
+# need to be copied over to usr/'lib*'.
+#
 # If ARCH_LIB_DIR is not a singular directory component, e.g.
 # 'lib32/octeon2', then symbolic links in ARCH_LIB_DIR and
 # usr/ARCH_LIB_DIR may be broken because Buildroot will flatten the
@@ -109,6 +112,10 @@ copy_toolchain_sysroot = \
 	ARCH_SUBDIR="$(strip $3)"; \
 	ARCH_LIB_DIR="$(strip $4)" ; \
 	SUPPORT_LIB_DIR="$(strip $5)" ; \
+	if [ "$(BR2_ROOTFS_MERGED_USR)" == "y" ]; then \
+		rsync -au --chmod=u=rwX,go=rX $${ARCH_SYSROOT_DIR}/lib $(STAGING_DIR)/usr/lib 1>&2 ; \
+		rsync -au --chmod=u=rwX,go=rX $${ARCH_SYSROOT_DIR}/$${ARCH_LIB_DIR} $(STAGING_DIR)/usr/$${ARCH_LIB_DIR} 1>&2 ; \
+	fi ; \
 	for i in etc $${ARCH_LIB_DIR} sbin usr usr/$${ARCH_LIB_DIR}; do \
 		if [ ! -d $${ARCH_SYSROOT_DIR}/$$i ] ; then \
 			continue ; \
